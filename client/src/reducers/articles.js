@@ -1,6 +1,4 @@
 import { SEARCH_ARTICLES, LOAD_ARTICLES } from '../constants/ActionTypes'
-import { xmlToJson } from './xmlConverter'
-
 
 
 const initialState = {
