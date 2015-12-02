@@ -13,10 +13,10 @@ export default function articles(state = initialState, action) {
     case LOAD_ARTICLES:
       if (action.body) {
         articles = []
-        for (let x = 0; x < action.body.item.length; x++) {
+        for (let item of action.body.item) {
           articles.push({
-            title: action.body.item[x].title,
-            description: action.body.item[x].description
+            title: item.title,
+            description: item.description
           });
         }
         return Object.assign({}, state, {
