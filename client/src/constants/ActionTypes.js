@@ -1,0 +1,2 @@
+export const LOAD_ARTICLES = 'LOAD_ARTICLES'
+export const SEARCH_ARTICLES = 'SEARCH_ARTICLES'
