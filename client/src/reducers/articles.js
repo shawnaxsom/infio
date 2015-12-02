@@ -28,10 +28,15 @@ export default function articles(state = initialState, action) {
       }
 
     case SEARCH_ARTICLES:
-      let re = new RegExp(action.searchTerms, 'g');
+      let terms = action.searchTerms.split(" ");
+      let expressions = terms.map((term) => new RegExp('.*' + term + '.*', 'gi'));
+
       let articles = state.all_articles.filter(function(val) {
-        return re.test(val.title) || re.test(val.description);
+        let matches = expressions.map((re) => re.test(val.title) || re.test(val.description));
+        let result = matches.reduce((a, b) => a && b);
+        return result
       });
+
       return Object.assign({}, state, {
         searchTerms: action.searchTerms,
         articles: articles
