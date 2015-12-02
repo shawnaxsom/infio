@@ -34,8 +34,8 @@ class ArticleListComponent extends React.Component {
       borderRadius: '.2em'
     }
 
-    for (var i = 0; i < this.props.articles.length; i++) {
-      let createMarkup = () => { return {__html: this.props.articles[i]["description"].toString()}; };
+    for (let article of this.props.articles) {
+      let createMarkup = () => { return {__html: article["description"].toString()}; };
       articles.push((
         <div style={articleStyle} dangerouslySetInnerHTML={createMarkup()}></div>
       ));
