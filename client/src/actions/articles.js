@@ -32,7 +32,8 @@ let termWeightings = {
   "indianapolis": 10,
   "fishers": 10,
   "carmel": 10,
-  "westfield": 10
+  "westfield": 10,
+  "software": 8
 }
 
 function scoreTerms(terms) {
@@ -56,13 +57,19 @@ function scoreTerms(terms) {
 function calculateArticleScore(termScores) {
   return (article) => {
     let terms = article.title[0].split(" ");
-    article.score = terms.reduce((prev, curr, i, array) => {
+    let termsScore = terms.reduce((prev, curr, i, array) => {
       if (i === 1) {
         return termScores[prev] + termScores[curr]
       } else {
         return prev + termScores[curr]
       }
     });
+
+    let now = new Date();
+    let pubDate = new Date(article.pubDate);
+    let ageInHours = (((now - pubDate) / 1000 ) / 60) / 60;
+
+    article.score = Math.round(termsScore - (ageInHours));
     return article;
   }
 }
@@ -80,15 +87,13 @@ function sortByScores(articleA, articleB) {
 function uniqueArticles() {
   let articleTitles = [];
   return article => {
-      console.log("Article Titles:");
-      console.log(articleTitles);
-      if (articleTitles.indexOf(article.title[0].toString()) >= 0) {
-        return false;
-      } else {
-        articleTitles.push(article.title[0].toString());
-        return true;
-      }
+    if (articleTitles.indexOf(article.title[0].toString()) >= 0) {
+      return false;
+    } else {
+      articleTitles.push(article.title[0].toString());
+      return true;
     }
+  }
 }
 
 function loadAllFeeds(feeds, dispatch) {
@@ -98,8 +103,8 @@ function loadAllFeeds(feeds, dispatch) {
     promises.push(loadFeed(feed));
   }
 
-  Promise.all(promises).then((results) => {
-    let articles = results.map((result) => result.item).reduce((prev, result) => prev.concat(result))
+  Promise.all(promises).then((feeds) => {
+    let articles = feeds.map((feed) => feed.item).reduce((prev, result) => prev.concat(result))
 
     let termsPerArticle = articles.map(article => article.title[0].split(" "))
     let terms = termsPerArticle.reduce((prev, article) => prev.concat(article))
@@ -108,6 +113,7 @@ function loadAllFeeds(feeds, dispatch) {
     articles = articles.map(calculateArticleScore(termScores));
     articles = articles.sort(sortByScores);
     articles = articles.filter(uniqueArticles());
+    articles = articles.slice(0, Math.min(30, articles.length-1));
 
     dispatch(articles);
   })

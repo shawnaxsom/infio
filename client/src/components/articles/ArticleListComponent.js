@@ -19,19 +19,25 @@ class ArticleListComponent extends React.Component {
       height: 'auto',
       padding: '15px',
       overflow: 'hidden',
-      fontSize: '.85em',
       borderRadius: '.3em'
     }
 
     var articleContainerStyle = {
-      color: '#D7CCBF',
-      display: 'inline-flex',
-      width: '300px',
+      color: '#978C7F',
       maxHeight: '500px',
       margin: '15px',
       padding: '1px',
       overflow: 'hidden',
       borderRadius: '.2em'
+    }
+
+    // TODO - Make this a toggle button prop
+    let displayInBlocks = true; 
+    if (displayInBlocks) {
+      Object.assign(articleContainerStyle, {
+        display: 'inline-flex',
+        width: '300px'
+      });
     }
 
     for (let article of this.props.articles) {
