@@ -28,6 +28,11 @@ let termWeightings = {
   "smartphone": -12,
   "nasa": -5,
   "obama": -9,
+  "indy": 10,
+  "indianapolis": 10,
+  "fishers": 10,
+  "carmel": 10,
+  "westfield": 10
 }
 
 function scoreTerms(terms) {
@@ -70,6 +75,20 @@ function sortByScores(articleA, articleB) {
   } else {
     return 0;
   }
+}                                   
+
+function uniqueArticles() {
+  let articleTitles = [];
+  return article => {
+      console.log("Article Titles:");
+      console.log(articleTitles);
+      if (articleTitles.indexOf(article.title[0].toString()) >= 0) {
+        return false;
+      } else {
+        articleTitles.push(article.title[0].toString());
+        return true;
+      }
+    }
 }
 
 function loadAllFeeds(feeds, dispatch) {
@@ -88,6 +107,7 @@ function loadAllFeeds(feeds, dispatch) {
 
     articles = articles.map(calculateArticleScore(termScores));
     articles = articles.sort(sortByScores);
+    articles = articles.filter(uniqueArticles());
 
     dispatch(articles);
   })
@@ -116,8 +136,21 @@ export function loadArticlesAsync(delay = 100) {
     dispatch(loadArticlesOptimistic())
 
     let dispatchLoadArticles = (results) => dispatch(loadArticles(results));
+    let feeds = [ 
+      'http://techmeme.com/feed.xml', 
+      'http://www.engadget.com/rss-full.xml',
+      'http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+      'http://www.wthr.com/category/60340/business-news?clienttype=rss',
+      'http://www.wthr.com/category/23903/local-news?clienttype=rss',
+      'http://www.ibj.com/rss/69',
+      'http://www.ibj.com/rss/35',
+      'http://www.ibj.com/rss/112',
+      'http://www.ibj.com/rss/9',
+      'http://www.ibj.com/rss/28',
+      'http://www.ibj.com/rss/22'
+    ]
 
-    loadAllFeeds([ 'http://techmeme.com/feed.xml', 'http://www.engadget.com/rss-full.xml' ], dispatchLoadArticles);
+    loadAllFeeds(feeds, dispatchLoadArticles);
 
     return null;
   }
