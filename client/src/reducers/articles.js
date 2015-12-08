@@ -11,11 +11,13 @@ export default function articles(state = initialState, action) {
     case LOAD_ARTICLES:
       if (action.body) {
         articles = []
-        for (let item of action.body.item) {
-          articles.push({
-            title: item.title,
-            description: item.description
-          });
+        for (let article of action.body) {
+          for (let item of article.item) {
+            articles.push({
+              title: item.title,
+              description: item.description
+            });
+          }
         }
         return Object.assign({}, state, {
           articles: articles,
