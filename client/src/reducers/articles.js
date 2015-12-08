@@ -12,22 +12,20 @@ export default function articles(state = initialState, action) {
       if (action.body) {
         articles = []
         for (let article of action.body) {
-          for (let item of article.item) {
-            let link = item.link;
-            let title = item.title;
+          let link = article.link;
+          let title = article.title;
 
-            debugger;
-            if (item.description.toString().indexOf(link) >= 0) {
-              link = "";
-              title = "";
-            }
-
-            articles.push({
-              title: title,
-              description: item.description,
-              link: link
-            });
+          if (article.description.toString().indexOf(link) >= 0) {
+            link = "";
+            title = "";
           }
+
+          articles.push({
+            title: title,
+            description: article.description,
+            link: link,
+            score: article.score
+          });
         }
         return Object.assign({}, state, {
           articles: articles,
@@ -49,7 +47,7 @@ export default function articles(state = initialState, action) {
 
       return Object.assign({}, state, {
         searchTerms: action.searchTerms,
-        articles: articles
+        articles: articles,
       })
 
     default:

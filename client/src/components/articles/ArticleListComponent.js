@@ -27,7 +27,7 @@ class ArticleListComponent extends React.Component {
       color: '#D7CCBF',
       display: 'inline-flex',
       width: '300px',
-      height: '300px',
+      maxHeight: '500px',
       margin: '15px',
       padding: '1px',
       overflow: 'hidden',
@@ -37,11 +37,12 @@ class ArticleListComponent extends React.Component {
     for (let article of this.props.articles) {
       let createMarkup = () => { return {__html: article["description"].toString()}; };
       articles.push((
-        <div>
+        <div style={articleStyle}>
+          <p>Score: {article["score"]}</p>
           <a href={article["link"]}>
             {article["title"]}
           </a>
-          <div style={articleStyle} dangerouslySetInnerHTML={createMarkup()}>
+          <div dangerouslySetInnerHTML={createMarkup()}>
           </div>
         </div>
       ));
