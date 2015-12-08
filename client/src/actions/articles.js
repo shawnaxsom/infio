@@ -49,7 +49,7 @@ export function loadArticlesAsync(delay = 100) {
 
     let dispatchLoadArticles = (results) => dispatch(loadArticles(results));
 
-    loadAllFeeds([ 'http://techmeme.com/feed.xml' ], dispatchLoadArticles);
+    loadAllFeeds([ 'http://techmeme.com/feed.xml', 'http://www.engadget.com/rss-full.xml' ], dispatchLoadArticles);
 
     return null;
   }

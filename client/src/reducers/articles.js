@@ -13,9 +13,19 @@ export default function articles(state = initialState, action) {
         articles = []
         for (let article of action.body) {
           for (let item of article.item) {
+            let link = item.link;
+            let title = item.title;
+
+            debugger;
+            if (item.description.toString().indexOf(link) >= 0) {
+              link = "";
+              title = "";
+            }
+
             articles.push({
-              title: item.title,
-              description: item.description
+              title: title,
+              description: item.description,
+              link: link
             });
           }
         }

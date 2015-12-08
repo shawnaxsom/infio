@@ -25,7 +25,6 @@ class ArticleListComponent extends React.Component {
 
     var articleContainerStyle = {
       color: '#D7CCBF',
-      background: '#EEF',
       display: 'inline-flex',
       width: '300px',
       height: '300px',
@@ -38,16 +37,21 @@ class ArticleListComponent extends React.Component {
     for (let article of this.props.articles) {
       let createMarkup = () => { return {__html: article["description"].toString()}; };
       articles.push((
-        <div style={articleStyle} dangerouslySetInnerHTML={createMarkup()}>
+        <div>
+          <a href={article["link"]}>
+            {article["title"]}
+          </a>
+          <div style={articleStyle} dangerouslySetInnerHTML={createMarkup()}>
+          </div>
         </div>
       ));
     }
 
     return (
       <div className="articlelist-component">
-        {articles.map(function(result) {
+        {articles.map(function(article) {
           return (
-            <div style={articleContainerStyle}>{result}</div>
+            <div style={articleContainerStyle}>{article}</div>
           )
         })}
       </div>
