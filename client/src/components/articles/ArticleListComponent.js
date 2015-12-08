@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import ArticleComponent from './ArticleComponent'
 
 require('styles/articles/ArticleList.sass');
 
@@ -37,7 +38,8 @@ class ArticleListComponent extends React.Component {
     for (let article of this.props.articles) {
       let createMarkup = () => { return {__html: article["description"].toString()}; };
       articles.push((
-        <div style={articleStyle} dangerouslySetInnerHTML={createMarkup()}></div>
+        <div style={articleStyle} dangerouslySetInnerHTML={createMarkup()}>
+        </div>
       ));
     }
 

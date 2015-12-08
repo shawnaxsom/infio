@@ -18,13 +18,15 @@ export function loadArticlesAsync(delay = 100) {
     dispatch(loadArticlesOptimistic())
     let url = 'http://shawnaxsom.com/api/articles';
     request
-        .get(url)
+        .post(url)
+        .send({ rssUri: 'http://techmeme.com/feed.xml' })
+        .set('accept', 'application/json')
         .end(function(err, res){
           if (res.ok) {
             dispatch(loadArticles(res.body));
             // return JSON.stringify(res.body);
           } else {
-            alert('Oh no! error ' + res.text);
+            alert('Oh no! error ' + err);
           }
         });
 
