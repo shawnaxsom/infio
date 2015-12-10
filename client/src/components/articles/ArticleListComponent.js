@@ -14,7 +14,7 @@ class ArticleListComponent extends React.Component {
   render() {
     let articles = []; 
     var articleStyle = {
-      background: '#FFFCFA',
+      background: '#FAF8F5',
       width: 'auto',
       height: 'auto',
       padding: '15px',
@@ -24,7 +24,6 @@ class ArticleListComponent extends React.Component {
 
     var articleContainerStyle = {
       color: '#978C7F',
-      maxHeight: '500px',
       margin: '15px',
       padding: '1px',
       overflow: 'hidden',
@@ -36,6 +35,7 @@ class ArticleListComponent extends React.Component {
     if (displayInBlocks) {
       Object.assign(articleContainerStyle, {
         display: 'inline-flex',
+        height: '300px',
         width: '300px'
       });
     }

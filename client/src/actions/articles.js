@@ -33,7 +33,11 @@ let termWeightings = {
   "fishers": 10,
   "carmel": 10,
   "westfield": 10,
-  "software": 8
+  "software": 8,
+  "star": -12,
+  "galaxy": -14,
+  "pacers": -18,
+  "bitcoin": -12
 }
 
 function scoreTerms(terms) {
@@ -131,7 +135,7 @@ function loadFeed(feed) {
             resolve(res.body);
             // return JSON.stringify(res.body);
           } else {
-            alert('Oh no! error ' + err);
+            alert('Oh no! feed: ' + feed + ' error ' + err);
           }
         });
   });
@@ -153,7 +157,21 @@ export function loadArticlesAsync(delay = 100) {
       'http://www.ibj.com/rss/112',
       'http://www.ibj.com/rss/9',
       'http://www.ibj.com/rss/28',
-      'http://www.ibj.com/rss/22'
+      'http://www.ibj.com/rss/22',
+      'http://thehackernews.com/feeds/posts/default',
+      'http://venturebeat.com/feed/',
+      'http://feeds2.feedburner.com/businessinsider',
+      'http://www.alistapart.com/rss.xml',
+      'http://scotch.io/feed',
+      'http://feeds.arstechnica.com/arstechnica/index/',
+      'http://gigaom.com/feed/',
+      'http://www.smashingmagazine.com/feed/',
+      'http://feeds.gawker.com/lifehacker/vip',
+      'http://www.engadget.com/rss-full.xml',
+      'http://www.readwriteweb.com/rss.xml',
+      'http://onethingwell.org/rss',
+      'http://inconsolation.wordpress.com/feed/',
+      'http://feeds.boingboing.net/boingboing/iBag'
     ]
 
     loadAllFeeds(feeds, dispatchLoadArticles);
