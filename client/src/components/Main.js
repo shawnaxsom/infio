@@ -8,47 +8,49 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import * as ArticleActions from '../actions/articles'
+import * as TermActions from '../actions/terms'
 
+import TermsComponent from 'components/terms/TermsComponent';
 import ArticleListComponent from 'components/articles/ArticleListComponent';
 import ArticleSearchComponent from 'components/articles/ArticleSearchComponent';
 
 let yeomanImage = require('../images/yeoman.png');
 
-class AppComponent extends React.Component {
-  render() {
 
-    const { articles, actions } = this.props
+class AppComponent extends React.Component {
+  componentDidMount() {
+    const { dispatch } = this.props
+    let articleActions = bindActionCreators(ArticleActions, dispatch);
+    let termActions = bindActionCreators(TermActions, dispatch);
+
+    dispatch(termActions.loadTerms);
+    dispatch(articleActions.loadArticlesAsync);
+  }
+
+  render() {
+    const { articles, terms, dispatch } = this.props
+
+    let articleActions = bindActionCreators(ArticleActions, dispatch);
+    let termActions = bindActionCreators(TermActions, dispatch);
 
     return (
       <div className="index">
-        <ArticleSearchComponent searchTerms={articles.searchTerms} onSearchChanged={actions.onSearchChanged} />
-        <ArticleListComponent articles={articles.articles} loadArticlesAsync={actions.loadArticlesAsync} />
+        <TermsComponent terms={terms.terms} loadTerms={termActions.loadTerms} 
+            addTerm={termActions.addTerm} deleteTerm={termActions.deleteTerm} 
+            loadArticles={articleActions.loadArticlesAsync} 
+            dispatch={this.props.dispatch} />
+        <ArticleSearchComponent searchTerms={articles.searchTerms} onSearchChanged={articleActions.onSearchChanged} />
+        <ArticleListComponent articles={articles.articles} terms={terms.terms}  />
       </div>
     );
   }
 }
 
-AppComponent.defaultProps = {
-};
-
-AppComponent.propTypes = {
-  articles: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired
-}
-
-function mapStateToProps(state) {
+function select(state) {
   return {
-    articles: state.articles
+    articles: state.articles,
+    terms: state.terms
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(ArticleActions, dispatch)
-  }
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AppComponent)
+export default connect(select)(AppComponent)

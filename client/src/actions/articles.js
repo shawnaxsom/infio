@@ -1,4 +1,5 @@
 import * as types from '../constants/ActionTypes'
+import _ from 'lodash'
 let request = require('superagent');
 
 export function onSearchChanged(searchTerms) {
@@ -13,45 +14,28 @@ export function loadArticles(body) {
   return { type: types.LOAD_ARTICLES, body: body }
 }
 
-// TODO - these are case sensitive at the moment
-let termWeightings = {
-  "trump": 1,
-  "amazon": 3,
-  "google": 6,
-  "programming": 6,
-  "javascript": 9,
-  "python": 9,
-  "netflix": 7,
-  "hulu": 7,
-  "playstation": -5,
-  "xbox": -5,
-  "smartphone": -12,
-  "nasa": -5,
-  "obama": -9,
-  "indy": 10,
-  "indianapolis": 10,
-  "fishers": 10,
-  "carmel": 10,
-  "westfield": 10,
-  "software": 8,
-  "star": -12,
-  "galaxy": -14,
-  "pacers": -18,
-  "bitcoin": -12
-}
+let ignoredTerms = [ "to", "for", "with", "on", "be", "in", "of", "in", "an", "a" ]
 
-function scoreTerms(terms) {
+function scoreTerms(terms, termWeights) {
   let termScores = {}
 
   for (let term of terms) {
+    if (ignoredTerms.indexOf(term) >= 0) {
+      termScores[term] = 0;
+      continue;
+    }
+
     if (!(term in termScores)) {
       termScores[term] = 0;
     }
 
-    if (term.toLowerCase() in termWeightings) {
-      termScores[term] += termWeightings[term.toLowerCase()];
+    let foundTerms = _.filter(termWeights.terms, 
+      _.matches({ 'name': term.toLowerCase() }));
+
+    if (foundTerms && foundTerms.length > 0) {
+      termScores[term] += parseInt(foundTerms[0].weight);
     } else {
-      termScores[term] += 1;
+      // termScores[term] += 1; // TODO - are results better with or without this?
     }
   }
 
@@ -100,7 +84,9 @@ function uniqueArticles() {
   }
 }
 
-function loadAllFeeds(feeds, dispatch) {
+let cachedFeeds = [];
+
+function loadAllFeeds(feeds, termWeights, dispatch) {
   let promises = [];
 
   for (let feed of feeds) {
@@ -108,16 +94,17 @@ function loadAllFeeds(feeds, dispatch) {
   }
 
   Promise.all(promises).then((feeds) => {
+    cachedFeeds = feeds; // TODO - remove, looking at memory allocation statistics.
     let articles = feeds.map((feed) => feed.item).reduce((prev, result) => prev.concat(result))
 
     let termsPerArticle = articles.map(article => article.title[0].split(" "))
     let terms = termsPerArticle.reduce((prev, article) => prev.concat(article))
-    let termScores = scoreTerms(terms);
+    let termScores = scoreTerms(terms, termWeights);
 
     articles = articles.map(calculateArticleScore(termScores));
     articles = articles.sort(sortByScores);
     articles = articles.filter(uniqueArticles());
-    articles = articles.slice(0, Math.min(30, articles.length-1));
+    articles = articles.slice(0, Math.min(120, articles.length-1));
 
     dispatch(articles);
   })
@@ -141,7 +128,7 @@ function loadFeed(feed) {
   });
 }
 
-export function loadArticlesAsync(delay = 100) {
+export function loadArticlesAsync(dispatcher, getState) {
   return dispatch => {
     dispatch(loadArticlesOptimistic())
 
@@ -159,22 +146,26 @@ export function loadArticlesAsync(delay = 100) {
       'http://www.ibj.com/rss/28',
       'http://www.ibj.com/rss/22',
       'http://thehackernews.com/feeds/posts/default',
-      'http://venturebeat.com/feed/',
-      'http://feeds2.feedburner.com/businessinsider',
-      'http://www.alistapart.com/rss.xml',
       'http://scotch.io/feed',
       'http://feeds.arstechnica.com/arstechnica/index/',
       'http://gigaom.com/feed/',
       'http://www.smashingmagazine.com/feed/',
-      'http://feeds.gawker.com/lifehacker/vip',
       'http://www.engadget.com/rss-full.xml',
-      'http://www.readwriteweb.com/rss.xml',
       'http://onethingwell.org/rss',
       'http://inconsolation.wordpress.com/feed/',
       'http://feeds.boingboing.net/boingboing/iBag'
     ]
 
-    loadAllFeeds(feeds, dispatchLoadArticles);
+    // These feeds are pretty large, removing for now
+    //'http://www.readwriteweb.com/rss.xml',
+    //'http://feeds2.feedburner.com/businessinsider',
+    //'http://www.alistapart.com/rss.xml',
+    //'http://feeds.gawker.com/lifehacker/vip',
+    //'http://venturebeat.com/feed/',
+
+    let terms = getState().terms;
+
+    loadAllFeeds(feeds, terms, dispatchLoadArticles);
 
     return null;
   }

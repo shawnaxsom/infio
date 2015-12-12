@@ -6,6 +6,8 @@ import { Provider } from 'react-redux'
 import AppComponent from './Main';
 import configureStore from '../stores/configureStore'
 import rootReducer from '../reducers/index'
+import * as ArticleActions from '../actions/articles'
+import * as TermActions from '../actions/terms'
 
 
 // const store = (applyMiddleware)configureStore()

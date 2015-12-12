@@ -6,11 +6,6 @@ import ArticleComponent from './ArticleComponent'
 require('styles/articles/ArticleList.sass');
 
 class ArticleListComponent extends React.Component {
-  componentDidMount() {
-    const { loadArticlesAsync } = this.props;
-    loadArticlesAsync();
-  }
-
   render() {
     let articles = []; 
     var articleStyle = {
