@@ -1,6 +1,9 @@
-import * as types from '../constants/ActionTypes'
-import _ from 'lodash'
+import * as types from '../constants/ActionTypes';
+import _ from 'lodash';
 let request = require('superagent');
+
+let nlp = require("nlp_compromise");
+var speak = require("speakeasy-nlp");
 
 export function onSearchChanged(searchTerms) {
   return { type: types.SEARCH_ARTICLES, searchTerms: searchTerms }
@@ -25,39 +28,114 @@ function scoreTerms(terms, termWeights) {
       continue;
     }
 
-    if (!(term in termScores)) {
-      termScores[term] = 0;
-    }
-
     let foundTerms = _.filter(termWeights.terms, 
       _.matches({ 'name': term.toLowerCase() }));
 
     if (foundTerms && foundTerms.length > 0) {
+      if (!(term in termScores)) {
+        termScores[term] = 0;
+      }
+
       termScores[term] += parseInt(foundTerms[0].weight);
     } else {
-      // termScores[term] += 1; // TODO - are results better with or without this?
+//      if (!(term in termScores)) {
+//        termScores[term] = 0;
+//      } else {
+//        termScores[term] += (term.length/2); // TODO - are results better with or without this?
+//      }
+      if (!(term in termScores)) {
+        termScores[term] = 0;
+      }
     }
   }
 
   return termScores;
 }
 
-function calculateArticleScore(termScores) {
-  return (article) => {
-    let terms = article.title[0].split(" ");
-    let termsScore = terms.reduce((prev, curr, i, array) => {
+const tagValues = {
+  "VB" : 2,
+  "VBD" : 1,
+  "VBN" : 1,
+  "VBP" : 3,
+  "VBZ" : 2,
+  "VBF" : 4,
+  "CP" : 0,
+  "VBG" : 4,
+  "JJ" : 3,
+  "JJR" : 5,
+  "JJS" : 6,
+  "RB" : 3,
+  "RBR" : 4,
+  "RBS" : 7,
+  "NN" : 1,
+  "NNP" : 4,
+  "NNPA" : 6,
+  "NNAB" : 1,
+  "NNPS" : 5,
+  "NNS" : 3,
+  "NNO" : 3,
+  "NG" : 2,
+  "PRP" : 0,
+  "PP" : 0,
+  "FW" : 2,
+  "IN" : 0,
+  "MD" : 0,
+  "CC" : 0,
+  "DT" : 0,
+  "UH" : 0,
+  "EX" : 0,
+  "CD" : 3,
+  "DA" : 3,
+  "NU" : 4
+}
+
+function calculateArticlePhraseScore(article) {
+  let phraseScoreForArticle = 0;
+  let title = article.title[0];
+
+  let allTags = nlp.pos(title).tags();
+  let tagScore = allTags.reduce((p, tagsForSubphrase) => {
+    let myTagScore = tagsForSubphrase.reduce((p2, myTag) => {
+      let mySingleTagScore = (myTag in tagValues ? tagValues[myTag] : 0);
+      return p2 + mySingleTagScore;
+    }, 0);
+    
+    return p + myTagScore;
+  }, 0)
+
+  let sentiment = speak.sentiment.positivity(title).score
+    - speak.sentiment.negativity(title).score;
+
+  phraseScoreForArticle = tagScore * (3+sentiment) * 2;
+  phraseScoreForArticle = phraseScoreForArticle - (title.length/2);
+
+  return phraseScoreForArticle;
+}
+
+function calculateArticleTermsScore(article, termScores) {
+    let termsInArticle = article.title[0].split(" ");
+    let termsScoreForArticle = termsInArticle.reduce((prev, curr, i, array) => {
       if (i === 1) {
         return termScores[prev] + termScores[curr]
       } else {
         return prev + termScores[curr]
       }
     });
+    return termsScoreForArticle;
+}
+
+function calculateArticleScore(termScores) {
+  return (article) => {
+    let termsScoreForArticle = calculateArticleTermsScore(article, termScores);
+    let phraseScoreForArticle = calculateArticlePhraseScore(article);
 
     let now = new Date();
     let pubDate = new Date(article.pubDate);
     let ageInHours = (((now - pubDate) / 1000 ) / 60) / 60;
 
-    article.score = Math.round(termsScore - (ageInHours));
+    article.score = Math.round(termsScoreForArticle 
+        + (phraseScoreForArticle * 2)
+        - (ageInHours * 4));
     return article;
   }
 }
@@ -86,15 +164,7 @@ function uniqueArticles() {
 
 let cachedFeeds = [];
 
-function loadAllFeeds(feeds, termWeights, dispatch) {
-  let promises = [];
-
-  for (let feed of feeds) {
-    promises.push(loadFeed(feed));
-  }
-
-  Promise.all(promises).then((feeds) => {
-    cachedFeeds = feeds; // TODO - remove, looking at memory allocation statistics.
+export function loadArticlesFromFeeds(feeds, termWeights, dispatch) {
     let articles = feeds.map((feed) => feed.item).reduce((prev, result) => prev.concat(result))
 
     let termsPerArticle = articles.map(article => article.title[0].split(" "))
@@ -104,9 +174,22 @@ function loadAllFeeds(feeds, termWeights, dispatch) {
     articles = articles.map(calculateArticleScore(termScores));
     articles = articles.sort(sortByScores);
     articles = articles.filter(uniqueArticles());
-    articles = articles.slice(0, Math.min(120, articles.length-1));
+    // articles = articles.slice(0, Math.min(120, articles.length-1));
+    articles = articles.filter(a => a.score > 0);
 
     dispatch(articles);
+}
+
+function loadAllFeeds(feeds, termWeights, dispatch) {
+  let promises = [];
+
+  for (let feed of feeds) {
+    promises.push(loadFeed(feed));
+  }
+
+  Promise.all(promises).then((feeds) => {
+    cachedFeeds = feeds;
+    loadArticlesFromFeeds(feeds, termWeights, dispatch);
   })
 }
 
@@ -126,6 +209,15 @@ function loadFeed(feed) {
           }
         });
   });
+}
+
+export function filterArticlesAsync(dispatcher, getState) {
+  return dispatch => {
+    let terms = getState().terms;
+    let dispatchLoadArticles = (results) => dispatch(loadArticles(results));
+
+    loadArticlesFromFeeds(cachedFeeds, terms, dispatchLoadArticles);
+  }
 }
 
 export function loadArticlesAsync(dispatcher, getState) {

@@ -8,6 +8,9 @@ var baseConfig = require('./base');
 var BowerWebpackPlugin = require('bower-webpack-plugin');
 
 var config = _.merge({
+  node: {
+      fs: "empty"
+  },
   entry: [
     'webpack-dev-server/client?http://shawnaxsom.com:8000',
     'webpack/hot/only-dev-server',

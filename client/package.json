@@ -64,6 +64,7 @@
   "dependencies": {
     "express": "^4.13.3",
     "lodash": "^3.10.1",
+    "nlp_compromise": "^1.1.5",
     "normalize.css": "^3.0.3",
     "react": "^0.14.0",
     "react-addons-test-utils": "^0.14.0",
@@ -72,6 +73,7 @@
     "react-redux": "^4.0.0",
     "redux": "^3.0.4",
     "redux-thunk": "^1.0.0",
+    "speakeasy-nlp": "^0.2.2",
     "superagent": "^1.4.0"
   }
 }
