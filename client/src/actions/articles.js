@@ -1,5 +1,4 @@
 import * as types from '../constants/ActionTypes';
-import _ from 'lodash';
 let request = require('superagent');
 
 let nlp = require("nlp_compromise");
@@ -28,8 +27,7 @@ function scoreTerms(terms, termWeights) {
       continue;
     }
 
-    let foundTerms = _.filter(termWeights.terms, 
-      _.matches({ 'name': term.toLowerCase() }));
+    let foundTerms = termWeights.terms.filter(t => t.name.toLowerCase() === term.toLowerCase());
 
     if (foundTerms && foundTerms.length > 0) {
       if (!(term in termScores)) {
@@ -174,8 +172,8 @@ export function loadArticlesFromFeeds(feeds, termWeights, dispatch) {
     articles = articles.map(calculateArticleScore(termScores));
     articles = articles.sort(sortByScores);
     articles = articles.filter(uniqueArticles());
-    // articles = articles.slice(0, Math.min(120, articles.length-1));
-    articles = articles.filter(a => a.score > 0);
+    articles = articles.slice(0, Math.min(40, articles.length-1));
+    //articles = articles.filter(a => a.score > 0);
 
     dispatch(articles);
 }
@@ -222,30 +220,28 @@ export function filterArticlesAsync(dispatcher, getState) {
 
 export function loadArticlesAsync(dispatcher, getState) {
   return dispatch => {
-    dispatch(loadArticlesOptimistic())
+    //dispatch(loadArticlesOptimistic())
 
     let dispatchLoadArticles = (results) => dispatch(loadArticles(results));
     let feeds = [ 
       'http://techmeme.com/feed.xml', 
-      'http://www.engadget.com/rss-full.xml',
-      'http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
-      'http://www.wthr.com/category/60340/business-news?clienttype=rss',
-      'http://www.wthr.com/category/23903/local-news?clienttype=rss',
-      'http://www.ibj.com/rss/69',
-      'http://www.ibj.com/rss/35',
-      'http://www.ibj.com/rss/112',
-      'http://www.ibj.com/rss/9',
-      'http://www.ibj.com/rss/28',
-      'http://www.ibj.com/rss/22',
-      'http://thehackernews.com/feeds/posts/default',
-      'http://scotch.io/feed',
-      'http://feeds.arstechnica.com/arstechnica/index/',
-      'http://gigaom.com/feed/',
-      'http://www.smashingmagazine.com/feed/',
-      'http://www.engadget.com/rss-full.xml',
-      'http://onethingwell.org/rss',
-      'http://inconsolation.wordpress.com/feed/',
-      'http://feeds.boingboing.net/boingboing/iBag'
+//      'http://www.engadget.com/rss-full.xml',
+//      'http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+//      'http://www.wthr.com/category/60340/business-news?clienttype=rss',
+//      'http://www.wthr.com/category/23903/local-news?clienttype=rss',
+//      'http://www.ibj.com/rss/69',
+//      'http://www.ibj.com/rss/35',
+//      'http://www.ibj.com/rss/112',
+//      'http://www.ibj.com/rss/9',
+//      'http://www.ibj.com/rss/28',
+//      'http://www.ibj.com/rss/22',
+//      'http://scotch.io/feed',
+//      'http://feeds.arstechnica.com/arstechnica/index/',
+//      'http://gigaom.com/feed/',
+//      'http://www.smashingmagazine.com/feed/',
+//      'http://www.engadget.com/rss-full.xml',
+//      'http://onethingwell.org/rss',
+//      'http://feeds.boingboing.net/boingboing/iBag'
     ]
 
     // These feeds are pretty large, removing for now

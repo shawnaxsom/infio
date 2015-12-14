@@ -44,6 +44,8 @@ class AppComponent extends React.Component {
   render() {
     const { articles, terms, dispatch } = this.props
 
+    console.log("Rendering Main");
+
     let articleActions = bindActionCreators(ArticleActions, dispatch);
     let termActions = bindActionCreators(TermActions, dispatch);
     let termsComponent = null;

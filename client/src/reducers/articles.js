@@ -7,6 +7,7 @@ const initialState = {
 }
 
 export default function articles(state = initialState, action) {
+  console.log("Processing articles action, type: " + action.type);
   switch (action.type) {
     case LOAD_ARTICLES:
       if (action.body) {
