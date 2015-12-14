@@ -100,6 +100,9 @@ function calculateArticlePhraseScore(article) {
     return p + myTagScore;
   }, 0)
 
+  phraseScoreForArticle = tagScore;
+  phraseScoreForArticle = phraseScoreForArticle - (title.length/3);
+
   return phraseScoreForArticle;
 }
 
@@ -218,23 +221,23 @@ export function loadArticlesAsync(dispatcher, getState) {
     let dispatchLoadArticles = (results) => dispatch(loadArticles(results));
     let feeds = [ 
       'http://techmeme.com/feed.xml', 
-//      'http://www.engadget.com/rss-full.xml',
-//      'http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
-//      'http://www.wthr.com/category/60340/business-news?clienttype=rss',
-//      'http://www.wthr.com/category/23903/local-news?clienttype=rss',
-//      'http://www.ibj.com/rss/69',
-//      'http://www.ibj.com/rss/35',
-//      'http://www.ibj.com/rss/112',
-//      'http://www.ibj.com/rss/9',
-//      'http://www.ibj.com/rss/28',
-//      'http://www.ibj.com/rss/22',
-//      'http://scotch.io/feed',
-//      'http://feeds.arstechnica.com/arstechnica/index/',
-//      'http://gigaom.com/feed/',
-//      'http://www.smashingmagazine.com/feed/',
-//      'http://www.engadget.com/rss-full.xml',
-//      'http://onethingwell.org/rss',
-//      'http://feeds.boingboing.net/boingboing/iBag'
+      'http://www.engadget.com/rss-full.xml',
+      'http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+      'http://www.wthr.com/category/60340/business-news?clienttype=rss',
+      'http://www.wthr.com/category/23903/local-news?clienttype=rss',
+      'http://www.ibj.com/rss/69',
+      'http://www.ibj.com/rss/35',
+      'http://www.ibj.com/rss/112',
+      'http://www.ibj.com/rss/9',
+      'http://www.ibj.com/rss/28',
+      'http://www.ibj.com/rss/22',
+      'http://scotch.io/feed',
+      'http://feeds.arstechnica.com/arstechnica/index/',
+      'http://gigaom.com/feed/',
+      'http://www.smashingmagazine.com/feed/',
+      'http://www.engadget.com/rss-full.xml',
+      'http://onethingwell.org/rss',
+      'http://feeds.boingboing.net/boingboing/iBag'
     ]
 
     // These feeds are pretty large, removing for now
