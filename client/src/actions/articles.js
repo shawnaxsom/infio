@@ -2,7 +2,6 @@ import * as types from '../constants/ActionTypes';
 let request = require('superagent');
 
 let nlp = require("nlp_compromise");
-var speak = require("speakeasy-nlp");
 
 export function onSearchChanged(searchTerms) {
   return { type: types.SEARCH_ARTICLES, searchTerms: searchTerms }
@@ -100,12 +99,6 @@ function calculateArticlePhraseScore(article) {
     
     return p + myTagScore;
   }, 0)
-
-  let sentiment = speak.sentiment.positivity(title).score
-    - speak.sentiment.negativity(title).score;
-
-  phraseScoreForArticle = tagScore * (3+sentiment) * 2;
-  phraseScoreForArticle = phraseScoreForArticle - (title.length/2);
 
   return phraseScoreForArticle;
 }
