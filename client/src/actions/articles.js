@@ -90,6 +90,10 @@ function calculateArticlePhraseScore(article) {
   let phraseScoreForArticle = 0;
   let title = article.title[0];
 
+  // Number of entities, e.g. well-known proper nouns
+  let entityScore = nlp.spot(title).length;
+
+  // Scoring based on types of words used
   let allTags = nlp.pos(title).tags();
   let tagScore = allTags.reduce((p, tagsForSubphrase) => {
     let myTagScore = tagsForSubphrase.reduce((p2, myTag) => {
@@ -100,8 +104,7 @@ function calculateArticlePhraseScore(article) {
     return p + myTagScore;
   }, 0)
 
-  phraseScoreForArticle = tagScore;
-  phraseScoreForArticle = phraseScoreForArticle - (title.length/3);
+  phraseScoreForArticle = (entityScore * 5) + tagScore;
 
   return phraseScoreForArticle;
 }
