@@ -1,5 +1,5 @@
 import * as types from '../constants/ActionTypes';
-let request = require('superagent');
+let request = require('superagent-cache')();
 
 let nlp = require("nlp_compromise");
 
@@ -178,24 +178,18 @@ export function loadArticlesFromFeeds(feeds, termWeights, dispatch) {
 }
 
 function loadAllFeeds(feeds, termWeights, dispatch) {
-  let promises = [];
-
-  for (let feed of feeds) {
-    promises.push(loadFeed(feed));
-  }
-
-  Promise.all(promises).then((feeds) => {
+  loadFeeds(feeds).then((feeds) => {
     cachedFeeds = feeds;
     loadArticlesFromFeeds(feeds, termWeights, dispatch);
   })
 }
 
-function loadFeed(feed) {
+function loadFeeds(feeds) {
   return new Promise((resolve, reject) => {
     let url = 'http://shawnaxsom.com/api/articles';
     request
         .post(url)
-        .send({ rssUri: feed })
+        .send({ rssUris: feeds })
         .set('accept', 'application/json')
         .end(function(err, res){
           if (res.ok) {
