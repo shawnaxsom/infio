@@ -1,5 +1,4 @@
 import * as types from '../constants/ActionTypes';
-let request = require('superagent-cache')();
 
 let nlp = require("nlp_compromise");
 
@@ -171,7 +170,7 @@ export function loadArticlesFromFeeds(feeds, termWeights, dispatch) {
     articles = articles.map(calculateArticleScore(termScores));
     articles = articles.sort(sortByScores);
     articles = articles.filter(uniqueArticles());
-    articles = articles.slice(0, Math.min(40, articles.length-1));
+    articles = articles.slice(0, Math.min(39, articles.length-1));
     //articles = articles.filter(a => a.score > 0);
 
     dispatch(articles);
@@ -186,19 +185,26 @@ function loadAllFeeds(feeds, termWeights, dispatch) {
 
 function loadFeeds(feeds) {
   return new Promise((resolve, reject) => {
+
     let url = 'http://shawnaxsom.com/api/articles';
-    request
-        .post(url)
-        .send({ rssUris: feeds })
-        .set('accept', 'application/json')
-        .end(function(err, res){
-          if (res.ok) {
-            resolve(res.body);
-            // return JSON.stringify(res.body);
-          } else {
-            alert('Oh no! feed: ' + feed + ' error ' + err);
-          }
-        });
+
+    fetch(url, {
+      method: 'post',
+      body: JSON.stringify({ 
+        rssUris: feeds
+      }),
+      headers: new Headers({
+        'Content-Type': 'application/json;charset=UTF-8'
+      })
+    }).then((res) => {
+      let json = res.json();
+      console.log("Response body");
+      console.log(json);
+      resolve(json);
+    }).catch((err) => {
+      console.log(err);
+    });
+
   });
 }
 
@@ -218,15 +224,11 @@ export function loadArticlesAsync(dispatcher, getState) {
     let dispatchLoadArticles = (results) => dispatch(loadArticles(results));
     let feeds = [ 
       'http://techmeme.com/feed.xml', 
-      'http://www.engadget.com/rss-full.xml',
       'http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
       'http://www.wthr.com/category/60340/business-news?clienttype=rss',
       'http://www.wthr.com/category/23903/local-news?clienttype=rss',
-      'http://www.ibj.com/rss/69',
-      'http://www.ibj.com/rss/35',
       'http://www.ibj.com/rss/112',
       'http://www.ibj.com/rss/9',
-      'http://www.ibj.com/rss/28',
       'http://www.ibj.com/rss/22',
       'http://scotch.io/feed',
       'http://feeds.arstechnica.com/arstechnica/index/',
