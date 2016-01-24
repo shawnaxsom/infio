@@ -161,7 +161,7 @@ function uniqueArticles() {
 let cachedFeeds = [];
 
 export function loadArticlesFromFeeds(feeds, termWeights, dispatch) {
-    let articles = feeds.map((feed) => feed.item).reduce((prev, result) => prev.concat(result))
+    let articles = feeds.map((feed) => feed.item).reduce((prev, result) => prev.concat(result)).filter(article => article !== undefined);
 
     let termsPerArticle = articles.map(article => article.title[0].split(" "))
     let terms = termsPerArticle.reduce((prev, article) => prev.concat(article))
@@ -232,7 +232,6 @@ export function loadArticlesAsync(dispatcher, getState) {
       'http://www.ibj.com/rss/22',
       'http://scotch.io/feed',
       'http://feeds.arstechnica.com/arstechnica/index/',
-      'http://gigaom.com/feed/',
       'http://www.smashingmagazine.com/feed/',
       'http://www.engadget.com/rss-full.xml',
       'http://onethingwell.org/rss',

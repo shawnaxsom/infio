@@ -16,7 +16,9 @@ function getRssFeed(rssUri, feedData, finish) {
     return;
   }
 
-  request(rssUri, function (error, response, body) {
+  console.log('Getting feed from uri: ' + rssUri);
+
+  request(rssUri, {timeout: 3500}, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       parseString(body, function (err, result) {
         //console.dir(result);
@@ -32,6 +34,10 @@ function getRssFeed(rssUri, feedData, finish) {
           finish();
         }
       });
+    } else {
+      console.log("Request timed out");
+      feedData.push({});
+      finish();
     }
   })
 }
