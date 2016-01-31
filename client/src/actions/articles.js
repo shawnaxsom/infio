@@ -186,7 +186,7 @@ function loadAllFeeds(feeds, termWeights, dispatch) {
 function loadFeeds(feeds) {
   return new Promise((resolve, reject) => {
 
-    let url = 'http://shawnaxsom.com/api/articles';
+    let url = 'https://shawnaxsom.com/api/articles';
 
     fetch(url, {
       method: 'post',
