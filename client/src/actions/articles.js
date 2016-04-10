@@ -16,7 +16,6 @@ export function loadArticles(body) {
 
 let ignoredTerms = [ "to", "for", "with", "on", "be", "in", "of", "in", "an", "a" ]
 
-
 function scoreTerms(terms, termWeights) {
   let termScores = {}
 
